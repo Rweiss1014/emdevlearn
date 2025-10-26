@@ -146,6 +146,7 @@ let animTime = 0; // For animations
 let showLevelPopup = false;
 let levelPopupText = '';
 let levelPopupTimer = 0;
+let gamePaused = false; // Pause when user navigates away
 
 // Get current question and answers
 let question = levels[currentLevel].question;
@@ -928,8 +929,10 @@ function render() {
 
 // Game loop
 function gameLoop() {
-  update();
-  render();
+  if (!gamePaused) {
+    update();
+    render();
+  }
   requestAnimationFrame(gameLoop);
 }
 
@@ -964,3 +967,23 @@ heartImg.onerror = () => {
   console.error('Failed to load heart image');
   imageLoaded();
 };
+
+// Pause game when user navigates away from game section
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      // Canvas is visible - resume game
+      gamePaused = false;
+      console.log('Game resumed');
+    } else {
+      // Canvas is not visible - pause game
+      gamePaused = true;
+      console.log('Game paused');
+    }
+  });
+}, {
+  threshold: 0.1 // Trigger when at least 10% of canvas is visible
+});
+
+// Start observing the canvas
+observer.observe(canvas);
