@@ -626,8 +626,39 @@ function render() {
   ctx.lineWidth = 2;
   ctx.strokeRect(15, 45, 150, 35);
 
+  // Draw decorative corners for score box
   ctx.shadowBlur = 5;
   ctx.shadowColor = '#19D4FF';
+  const cornerSize = 10;
+
+  // Top-left corner
+  ctx.beginPath();
+  ctx.moveTo(15 + cornerSize, 45);
+  ctx.lineTo(15, 45);
+  ctx.lineTo(15, 45 + cornerSize);
+  ctx.stroke();
+
+  // Top-right corner
+  ctx.beginPath();
+  ctx.moveTo(165 - cornerSize, 45);
+  ctx.lineTo(165, 45);
+  ctx.lineTo(165, 45 + cornerSize);
+  ctx.stroke();
+
+  // Bottom-left corner
+  ctx.beginPath();
+  ctx.moveTo(15, 80 - cornerSize);
+  ctx.lineTo(15, 80);
+  ctx.lineTo(15 + cornerSize, 80);
+  ctx.stroke();
+
+  // Bottom-right corner
+  ctx.beginPath();
+  ctx.moveTo(165, 80 - cornerSize);
+  ctx.lineTo(165, 80);
+  ctx.lineTo(165 - cornerSize, 80);
+  ctx.stroke();
+
   ctx.fillStyle = '#19D4FF';
   ctx.font = `bold ${hudScoreSize}px Orbitron, monospace, sans-serif`;
   ctx.textAlign = 'left';
@@ -637,6 +668,40 @@ function render() {
   // Draw lives box with border
   ctx.strokeStyle = '#FF4444';
   ctx.strokeRect(CANVAS_WIDTH - 170, 45, 155, 35);
+
+  // Draw decorative corners for lives box
+  ctx.shadowBlur = 5;
+  ctx.shadowColor = '#FF4444';
+  const livesBoxLeft = CANVAS_WIDTH - 170;
+  const livesBoxRight = CANVAS_WIDTH - 15;
+
+  // Top-left corner
+  ctx.beginPath();
+  ctx.moveTo(livesBoxLeft + cornerSize, 45);
+  ctx.lineTo(livesBoxLeft, 45);
+  ctx.lineTo(livesBoxLeft, 45 + cornerSize);
+  ctx.stroke();
+
+  // Top-right corner
+  ctx.beginPath();
+  ctx.moveTo(livesBoxRight - cornerSize, 45);
+  ctx.lineTo(livesBoxRight, 45);
+  ctx.lineTo(livesBoxRight, 45 + cornerSize);
+  ctx.stroke();
+
+  // Bottom-left corner
+  ctx.beginPath();
+  ctx.moveTo(livesBoxLeft, 80 - cornerSize);
+  ctx.lineTo(livesBoxLeft, 80);
+  ctx.lineTo(livesBoxLeft + cornerSize, 80);
+  ctx.stroke();
+
+  // Bottom-right corner
+  ctx.beginPath();
+  ctx.moveTo(livesBoxRight, 80 - cornerSize);
+  ctx.lineTo(livesBoxRight, 80);
+  ctx.lineTo(livesBoxRight - cornerSize, 80);
+  ctx.stroke();
 
   ctx.textAlign = 'right';
   ctx.fillStyle = '#FF4444';
