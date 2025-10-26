@@ -13,66 +13,133 @@ const GRID_HEIGHT = 16; // Increased from 11 to 16 rows
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
 
-// Taller maze with more pathways (0 = floor, 1 = wall)
-const maze = [
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-  [1,0,1,0,1,0,1,0,0,1,0,1,0,0,1,0,1,0,0,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-  [1,0,1,0,1,0,0,1,0,1,0,1,0,0,1,0,1,0,0,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-  [1,0,1,0,0,1,0,1,0,0,1,0,0,1,0,0,1,0,0,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-  [1,0,1,0,1,0,1,0,0,1,0,1,0,0,1,0,1,0,0,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-  [1,0,0,1,0,1,0,0,1,0,1,0,0,1,0,1,0,0,0,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-  [1,0,1,0,0,1,0,1,0,1,0,1,0,0,1,0,1,0,0,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+// Different maze layouts for each level (0 = floor, 1 = wall)
+const mazes = [
+  // Level 1: Simple open maze with few obstacles
+  [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,1,1,0,0,0,0,0,0,0,1,1,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,1,1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,1,1,0,0,0,1,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ],
+  // Level 2: More obstacles
+  [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,1,0,0,0,1,1,0,0,1,1,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,1,1,0,0,0,0,0,0,0,1,1,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,1,0,0,0,1,1,0,0,1,1,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ],
+  // Level 3: Even more challenging
+  [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,1,1,0,0,1,0,0,1,1,0,0,1,0,0,1,1,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,1,0,0,1,1,0,0,0,0,0,0,1,1,0,0,1,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,1,0,0,1,0,0,1,1,1,1,0,0,1,0,0,1,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,1,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ],
+  // Level 4: Most challenging
+  [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,1,0,0,1,1,0,0,0,0,1,1,0,0,1,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,1,0,1,0,0,0,1,1,1,1,0,0,0,1,0,1,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,1,0,1,1,0,0,0,0,0,0,1,1,0,1,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,1,0,0,1,0,1,0,1,1,0,1,0,1,0,0,1,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ]
 ];
 
-// Multi-level game structure
+let maze = mazes[0]; // Start with level 1 maze
+
+// Multi-level game structure - correct answers far from spawn (1.5, 1.5)
 const levels = [
   {
     question: "What makes a good team member?",
+    enemyCount: 1,
     answers: [
-      { text: "Listening", x: 3, y: 3, correct: true, collected: false },
-      { text: "Gossip", x: 8, y: 5, correct: false, collected: false },
-      { text: "Ego", x: 12, y: 8, correct: false, collected: false },
-      { text: "Blaming", x: 16, y: 12, correct: false, collected: false }
+      { text: "Listening", x: 17, y: 13, correct: true, collected: false }, // Far from spawn
+      { text: "Gossip", x: 6, y: 4, correct: false, collected: false },
+      { text: "Ego", x: 12, y: 7, correct: false, collected: false },
+      { text: "Blaming", x: 8, y: 11, correct: false, collected: false }
     ]
   },
   {
     question: "Best way to handle conflict?",
+    enemyCount: 2,
     answers: [
-      { text: "Collaborate", x: 10, y: 1, correct: true, collected: false },
-      { text: "Avoid it", x: 4, y: 7, correct: false, collected: false },
-      { text: "Blame", x: 14, y: 9, correct: false, collected: false },
-      { text: "Yell", x: 6, y: 13, correct: false, collected: false }
+      { text: "Collaborate", x: 17, y: 14, correct: true, collected: false }, // Far from spawn
+      { text: "Avoid it", x: 5, y: 5, correct: false, collected: false },
+      { text: "Blame", x: 10, y: 8, correct: false, collected: false },
+      { text: "Yell", x: 14, y: 10, correct: false, collected: false }
     ]
   },
   {
     question: "How to build trust?",
+    enemyCount: 3,
     answers: [
-      { text: "Honesty", x: 17, y: 3, correct: true, collected: false },
-      { text: "Secrets", x: 8, y: 5, correct: false, collected: false },
-      { text: "Lies", x: 12, y: 10, correct: false, collected: false },
-      { text: "Hiding", x: 4, y: 14, correct: false, collected: false }
+      { text: "Honesty", x: 18, y: 13, correct: true, collected: false }, // Far from spawn
+      { text: "Secrets", x: 7, y: 5, correct: false, collected: false },
+      { text: "Lies", x: 12, y: 9, correct: false, collected: false },
+      { text: "Hiding", x: 5, y: 12, correct: false, collected: false }
     ]
   },
   {
     question: "Key to productivity?",
+    enemyCount: 4,
     answers: [
-      { text: "Focus", x: 6, y: 7, correct: true, collected: false },
-      { text: "Multitask", x: 3, y: 3, correct: false, collected: false },
-      { text: "Distract", x: 14, y: 9, correct: false, collected: false },
-      { text: "Procrastinate", x: 10, y: 13, correct: false, collected: false }
+      { text: "Focus", x: 17, y: 13, correct: true, collected: false }, // Far from spawn
+      { text: "Multitask", x: 6, y: 3, correct: false, collected: false },
+      { text: "Distract", x: 10, y: 7, correct: false, collected: false },
+      { text: "Procrastinate", x: 14, y: 11, correct: false, collected: false }
     ]
   },
   {
     question: "You completed all levels!",
+    enemyCount: 0,
     answers: []
   }
 ];
@@ -84,6 +151,9 @@ let score = 0;
 let invincible = false;
 let flashTimer = 0;
 let animTime = 0; // For animations
+let showLevelPopup = false;
+let levelPopupText = '';
+let levelPopupTimer = 0;
 
 // Get current question and answers
 let question = levels[currentLevel].question;
@@ -97,10 +167,32 @@ const player = {
   size: 40
 };
 
-// One green enemy that's slower
-const enemies = [
-  { x: 18.5, y: 1.5, speed: 0.03, size: 40, dirX: 0, dirY: 0, nextDirChange: 0 }
-];
+// Function to generate enemies based on level
+function generateEnemies(count) {
+  const enemyPositions = [
+    { x: 18.5, y: 1.5 },
+    { x: 18.5, y: 14.5 },
+    { x: 1.5, y: 14.5 },
+    { x: 10, y: 8 }
+  ];
+
+  const newEnemies = [];
+  for (let i = 0; i < Math.min(count, 4); i++) {
+    newEnemies.push({
+      x: enemyPositions[i].x,
+      y: enemyPositions[i].y,
+      speed: 0.03,
+      size: 40,
+      dirX: 0,
+      dirY: 0,
+      nextDirChange: 0
+    });
+  }
+  return newEnemies;
+}
+
+// Start with enemies from level 1
+let enemies = generateEnemies(levels[currentLevel].enemyCount);
 
 // Keyboard state
 const keys = {
@@ -272,6 +364,14 @@ function update() {
     }
   }
 
+  // Update level popup timer
+  if (showLevelPopup && levelPopupTimer > 0) {
+    levelPopupTimer--;
+    if (levelPopupTimer <= 0) {
+      showLevelPopup = false;
+    }
+  }
+
   // Update enemies
   updateEnemies();
 
@@ -298,20 +398,25 @@ function checkAnswerCollision() {
       if (answer.correct) {
         score += 100;
 
-        // Advance to next level
-        setTimeout(() => {
-          currentLevel++;
-          if (currentLevel >= levels.length - 1) {
-            // Completed all levels!
-            alert('🎉 Congratulations! You completed all levels!\nFinal Score: ' + score);
-            currentLevel = levels.length - 1; // Show completion screen
-          } else {
-            alert('✓ Correct! Advancing to Level ' + (currentLevel + 1));
-          }
+        // Show in-game popup
+        currentLevel++;
+        if (currentLevel >= levels.length - 1) {
+          // Completed all levels!
+          levelPopupText = '🎉 Congratulations!\nYou completed all levels!\nFinal Score: ' + score;
+          currentLevel = levels.length - 1; // Show completion screen
+        } else {
+          levelPopupText = '✓ Correct!\nAdvancing to Level ' + (currentLevel + 1);
+        }
 
-          // Load next level
+        showLevelPopup = true;
+        levelPopupTimer = 180; // Show for 3 seconds at 60fps
+
+        // Load next level after short delay
+        setTimeout(() => {
           question = levels[currentLevel].question;
           answers = levels[currentLevel].answers;
+          maze = mazes[Math.min(currentLevel, mazes.length - 1)]; // Load new maze
+          enemies = generateEnemies(levels[currentLevel].enemyCount); // Generate enemies for new level
           player.x = 1.5;
           player.y = 1.5;
         }, 100);
@@ -324,14 +429,22 @@ function checkAnswerCollision() {
         hurtSound.play().catch(e => console.log('Audio play failed:', e));
 
         if (lives <= 0) {
-          alert('Game Over! Final Score: ' + score + '\nRefresh to play again.');
-          lives = 3;
-          score = 0;
-          currentLevel = 0;
-          question = levels[currentLevel].question;
-          answers = levels[currentLevel].answers;
-          player.x = 1.5;
-          player.y = 1.5;
+          levelPopupText = 'Game Over!\nFinal Score: ' + score + '\nRefreshing...';
+          showLevelPopup = true;
+          levelPopupTimer = 180;
+
+          setTimeout(() => {
+            lives = 3;
+            score = 0;
+            currentLevel = 0;
+            question = levels[currentLevel].question;
+            answers = levels[currentLevel].answers;
+            maze = mazes[0];
+            enemies = generateEnemies(levels[currentLevel].enemyCount);
+            player.x = 1.5;
+            player.y = 1.5;
+            showLevelPopup = false;
+          }, 3000);
         }
       }
     }
@@ -777,6 +890,48 @@ function render() {
   }
 
   ctx.shadowBlur = 0;
+
+  // Draw in-game level popup overlay
+  if (showLevelPopup) {
+    // Semi-transparent overlay
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // Popup box
+    const boxWidth = 500;
+    const boxHeight = 200;
+    const boxX = (CANVAS_WIDTH - boxWidth) / 2;
+    const boxY = (CANVAS_HEIGHT - boxHeight) / 2;
+
+    // Box background with gradient
+    const popupGradient = ctx.createLinearGradient(boxX, boxY, boxX, boxY + boxHeight);
+    popupGradient.addColorStop(0, '#1B1F2A');
+    popupGradient.addColorStop(1, '#0F1117');
+    ctx.fillStyle = popupGradient;
+    ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+
+    // Box border with glow
+    ctx.strokeStyle = '#E44FD6';
+    ctx.lineWidth = 3;
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = '#E44FD6';
+    ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+    ctx.shadowBlur = 0;
+
+    // Popup text
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 28px Orbitron, monospace, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const lines = levelPopupText.split('\n');
+    const lineHeight = 40;
+    const startY = boxY + boxHeight / 2 - ((lines.length - 1) * lineHeight) / 2;
+
+    lines.forEach((line, index) => {
+      ctx.fillText(line, CANVAS_WIDTH / 2, startY + index * lineHeight);
+    });
+  }
 }
 
 // Game loop
