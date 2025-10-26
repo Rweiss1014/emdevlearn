@@ -1165,10 +1165,11 @@ function gameLoop() {
 
 // Wait for all images to load before starting
 let imagesLoaded = 0;
-const totalImages = 10; // character, slime, heart, 4 gems, key, lock
+const totalImages = 9; // character, slime, heart, key, lock, 4 gems = 9 total
 
 function imageLoaded() {
   imagesLoaded++;
+  console.log(`Image loaded: ${imagesLoaded}/${totalImages}`);
   if (imagesLoaded === totalImages) {
     console.log('All images loaded, starting game');
     setupMobileControls();
