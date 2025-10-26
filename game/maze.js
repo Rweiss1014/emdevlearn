@@ -139,6 +139,18 @@ let showLevelPopup = false;
 let levelPopupText = '';
 let levelPopupTimer = 0;
 let gamePaused = false; // Pause when user navigates away
+let enemiesFrozen = false;
+let freezeTimer = 0;
+
+// Gem state
+let gems = [];
+
+// Key/Lock state
+let keyVisible = false;
+let lockVisible = false;
+let keyCollected = false;
+let keyPosition = { x: 0, y: 0 };
+let lockPosition = { x: 0, y: 0 };
 
 // Get current question and answers
 let question = levels[currentLevel].question;
@@ -179,6 +191,37 @@ function generateEnemies(count) {
 // Start with enemies from level 1
 let enemies = generateEnemies(levels[currentLevel].enemyCount);
 
+// Function to generate random gem positions (avoid walls and player spawn)
+function generateGems() {
+  const newGems = [];
+  for (let i = 0; i < 4; i++) {
+    let x, y;
+    let validPosition = false;
+
+    // Keep trying until we find a valid floor position
+    while (!validPosition) {
+      x = Math.floor(Math.random() * (GRID_WIDTH - 2)) + 1; // Avoid outer walls
+      y = Math.floor(Math.random() * (GRID_HEIGHT - 2)) + 1;
+
+      // Check if it's a floor tile and not too close to player spawn
+      if (maze[y][x] === 0 && (Math.abs(x - 1.5) > 2 || Math.abs(y - 1.5) > 2)) {
+        validPosition = true;
+      }
+    }
+
+    newGems.push({
+      x: x + 0.5,
+      y: y + 0.5,
+      collected: false,
+      type: i // Which gem image to use
+    });
+  }
+  return newGems;
+}
+
+// Generate gems for level 1
+gems = generateGems();
+
 // Keyboard state
 const keys = {
   ArrowUp: false,
@@ -200,6 +243,22 @@ slimeImg.src = 'game/assets/slime_block_walk_a.png';
 
 const heartImg = new Image();
 heartImg.src = 'game/assets/heart.png';
+
+// Load gem images
+const gemImgs = [];
+const gemColors = ['blue', 'green', 'red', 'yellow'];
+gemColors.forEach(color => {
+  const gemImg = new Image();
+  gemImg.src = `game/assets/gem_${color}.png`;
+  gemImgs.push(gemImg);
+});
+
+// Load key and lock images
+const keyImg = new Image();
+keyImg.src = 'game/assets/key.png';
+
+const lockImg = new Image();
+lockImg.src = 'game/assets/lock.png';
 
 const hurtSound = new Audio('game/assets/sfx_hurt.ogg');
 
@@ -357,14 +416,37 @@ function update() {
     }
   }
 
-  // Update enemies
-  updateEnemies();
+  // Update freeze timer
+  if (enemiesFrozen && freezeTimer > 0) {
+    freezeTimer--;
+    if (freezeTimer <= 0) {
+      enemiesFrozen = false;
+    }
+  }
+
+  // Update enemies (only if not frozen)
+  if (!enemiesFrozen) {
+    updateEnemies();
+  }
 
   // Check collision with enemies
   checkEnemyCollision();
 
   // Check collision with answers
   checkAnswerCollision();
+
+  // Check collision with gems
+  checkGemCollision();
+
+  // Check collision with key
+  if (keyVisible && !keyCollected) {
+    checkKeyCollision();
+  }
+
+  // Check collision with lock
+  if (lockVisible && keyCollected) {
+    checkLockCollision();
+  }
 }
 
 // Check if player collects an answer
@@ -383,28 +465,17 @@ function checkAnswerCollision() {
       if (answer.correct) {
         score += 100;
 
-        // Show in-game popup
-        currentLevel++;
-        if (currentLevel >= levels.length - 1) {
-          // Completed all levels!
-          levelPopupText = '🎉 Congratulations!\nYou completed all levels!\nFinal Score: ' + score;
-          currentLevel = levels.length - 1; // Show completion screen
-        } else {
-          levelPopupText = '✓ Correct!\nAdvancing to Level ' + (currentLevel + 1);
-        }
+        // Spawn key and lock on opposite sides
+        keyPosition = { x: 2.5, y: 2.5 }; // Left side
+        lockPosition = { x: 17.5, y: 9.5 }; // Right side
+        keyVisible = true;
+        lockVisible = true;
+        keyCollected = false;
 
+        // Show brief message
+        levelPopupText = '✓ Correct!\nFind the key and unlock!';
         showLevelPopup = true;
-        levelPopupTimer = 180; // Show for 3 seconds at 60fps
-
-        // Load next level after short delay
-        setTimeout(() => {
-          question = levels[currentLevel].question;
-          answers = levels[currentLevel].answers;
-          maze = mazes[Math.min(currentLevel, mazes.length - 1)]; // Load new maze
-          enemies = generateEnemies(levels[currentLevel].enemyCount); // Generate enemies for new level
-          player.x = 1.5;
-          player.y = 1.5;
-        }, 100);
+        levelPopupTimer = 120; // Show for 2 seconds
       } else {
         score -= 50;
         lives--;
@@ -434,6 +505,77 @@ function checkAnswerCollision() {
       }
     }
   });
+}
+
+// Check if player collects a gem
+function checkGemCollision() {
+  gems.forEach(gem => {
+    if (gem.collected) return;
+
+    const dist = Math.sqrt(
+      Math.pow((player.x - gem.x) * TILE_SIZE, 2) +
+      Math.pow((player.y - gem.y) * TILE_SIZE, 2)
+    );
+
+    if (dist < 30) {
+      gem.collected = true;
+      score += 50; // Gem points
+
+      // Freeze enemies for 2 seconds (120 frames at 60fps)
+      enemiesFrozen = true;
+      freezeTimer = 120;
+    }
+  });
+}
+
+// Check if player collects the key
+function checkKeyCollision() {
+  const dist = Math.sqrt(
+    Math.pow((player.x - keyPosition.x) * TILE_SIZE, 2) +
+    Math.pow((player.y - keyPosition.y) * TILE_SIZE, 2)
+  );
+
+  if (dist < 30) {
+    keyCollected = true;
+    keyVisible = false; // Key travels with player now
+  }
+}
+
+// Check if player unlocks with the key
+function checkLockCollision() {
+  const dist = Math.sqrt(
+    Math.pow((player.x - lockPosition.x) * TILE_SIZE, 2) +
+    Math.pow((player.y - lockPosition.y) * TILE_SIZE, 2)
+  );
+
+  if (dist < 30) {
+    // Unlock! Advance to next level
+    lockVisible = false;
+    keyCollected = false;
+
+    currentLevel++;
+    if (currentLevel >= levels.length - 1) {
+      // Completed all levels!
+      levelPopupText = '🎉 Congratulations!\nYou completed all levels!\nFinal Score: ' + score;
+      currentLevel = levels.length - 1;
+    } else {
+      levelPopupText = '🔓 Unlocked!\nAdvancing to Level ' + (currentLevel + 1);
+    }
+
+    showLevelPopup = true;
+    levelPopupTimer = 180;
+
+    // Load next level
+    setTimeout(() => {
+      question = levels[currentLevel].question;
+      answers = levels[currentLevel].answers;
+      maze = mazes[Math.min(currentLevel, mazes.length - 1)];
+      enemies = generateEnemies(levels[currentLevel].enemyCount);
+      gems = generateGems(); // Regenerate gems for new level
+      player.x = 1.5;
+      player.y = 1.5;
+    }, 100);
+  }
 }
 
 // Simple AI for enemies
@@ -577,6 +719,66 @@ function render() {
     }
   }
 
+  // Draw gems (offset by HUD_HEIGHT)
+  gems.forEach((gem, index) => {
+    if (gem.collected) return;
+
+    const gx = gem.x * TILE_SIZE;
+    const gy = gem.y * TILE_SIZE + HUD_HEIGHT;
+
+    // Floating animation
+    const floatOffset = Math.sin(animTime * 3 + index) * 2;
+
+    // Draw gem with glow
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#FFD700';
+
+    if (gemImgs[gem.type] && gemImgs[gem.type].complete) {
+      ctx.drawImage(gemImgs[gem.type], gx - 20, gy - 20 + floatOffset, 40, 40);
+    } else {
+      // Fallback
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(gx, gy + floatOffset, 15, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+  });
+
+  // Draw key (if visible and not collected)
+  if (keyVisible && !keyCollected) {
+    const kx = keyPosition.x * TILE_SIZE;
+    const ky = keyPosition.y * TILE_SIZE + HUD_HEIGHT;
+
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#FFD700';
+
+    if (keyImg.complete) {
+      ctx.drawImage(keyImg, kx - 24, ky - 24, 48, 48);
+    } else {
+      ctx.fillStyle = '#FFD700';
+      ctx.fillRect(kx - 15, ky - 15, 30, 30);
+    }
+    ctx.shadowBlur = 0;
+  }
+
+  // Draw lock
+  if (lockVisible) {
+    const lx = lockPosition.x * TILE_SIZE;
+    const ly = lockPosition.y * TILE_SIZE + HUD_HEIGHT;
+
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#FF4444';
+
+    if (lockImg.complete) {
+      ctx.drawImage(lockImg, lx - 24, ly - 24, 48, 48);
+    } else {
+      ctx.fillStyle = '#FF4444';
+      ctx.fillRect(lx - 15, ly - 15, 30, 30);
+    }
+    ctx.shadowBlur = 0;
+  }
+
   // Draw collectible answers (offset by HUD_HEIGHT)
   // Make text BIGGER and easier to read
   const isMobile = window.innerWidth <= 768;
@@ -641,11 +843,16 @@ function render() {
     ctx.ellipse(ex, ey + enemy.size / 3, enemy.size / 3, enemy.size / 6, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Add green glow for friendly-looking enemy
-    ctx.shadowBlur = 15 + Math.sin(animTime * 2 + index) * 5;
-    ctx.shadowColor = '#10B981';
+    // Change glow based on frozen state
+    if (enemiesFrozen) {
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = '#19D4FF'; // Blue glow when frozen
+    } else {
+      ctx.shadowBlur = 15 + Math.sin(animTime * 2 + index) * 5;
+      ctx.shadowColor = '#10B981'; // Green glow normally
+    }
 
-    // Draw with green tint
+    // Draw with tint
     ctx.save();
     ctx.globalCompositeOperation = 'source-over';
 
@@ -658,15 +865,15 @@ function render() {
         enemy.size
       );
 
-      // Add green tint overlay
+      // Add tint overlay (blue if frozen, green if not)
       ctx.globalCompositeOperation = 'multiply';
-      ctx.fillStyle = '#10B981';
+      ctx.fillStyle = enemiesFrozen ? '#19D4FF' : '#10B981';
       ctx.fillRect(ex - enemy.size / 2, ey - enemy.size / 2, enemy.size, enemy.size);
 
       ctx.globalCompositeOperation = 'source-over';
     } else {
       // Fallback
-      ctx.fillStyle = '#10B981';
+      ctx.fillStyle = enemiesFrozen ? '#19D4FF' : '#10B981';
       ctx.beginPath();
       ctx.arc(ex, ey, enemy.size / 2, 0, Math.PI * 2);
       ctx.fill();
@@ -713,6 +920,24 @@ function render() {
       ctx.arc(px, py, player.size / 2, 0, Math.PI * 2);
       ctx.fill();
     }
+  }
+
+  // Draw key following player if collected
+  if (keyCollected) {
+    const keyOffsetX = 15;
+    const keyOffsetY = -10;
+    const floatOffset = Math.sin(animTime * 4) * 2;
+
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#FFD700';
+
+    if (keyImg.complete) {
+      ctx.drawImage(keyImg, px + keyOffsetX, py + keyOffsetY + floatOffset, 32, 32);
+    } else {
+      ctx.fillStyle = '#FFD700';
+      ctx.fillRect(px + keyOffsetX, py + keyOffsetY + floatOffset, 20, 20);
+    }
+    ctx.shadowBlur = 0;
   }
 
   // Draw HUD background with gradient
@@ -930,7 +1155,7 @@ function gameLoop() {
 
 // Wait for all images to load before starting
 let imagesLoaded = 0;
-const totalImages = 3;
+const totalImages = 10; // character, slime, heart, 4 gems, key, lock
 
 function imageLoaded() {
   imagesLoaded++;
@@ -945,6 +1170,17 @@ function imageLoaded() {
 characterImg.onload = imageLoaded;
 slimeImg.onload = imageLoaded;
 heartImg.onload = imageLoaded;
+keyImg.onload = imageLoaded;
+lockImg.onload = imageLoaded;
+
+// Load gem images
+gemImgs.forEach((gemImg, index) => {
+  gemImg.onload = imageLoaded;
+  gemImg.onerror = () => {
+    console.error(`Failed to load gem ${gemColors[index]} image`);
+    imageLoaded();
+  };
+});
 
 // Error handling
 characterImg.onerror = () => {
@@ -957,6 +1193,14 @@ slimeImg.onerror = () => {
 };
 heartImg.onerror = () => {
   console.error('Failed to load heart image');
+  imageLoaded();
+};
+keyImg.onerror = () => {
+  console.error('Failed to load key image');
+  imageLoaded();
+};
+lockImg.onerror = () => {
+  console.error('Failed to load lock image');
   imageLoaded();
 };
 
