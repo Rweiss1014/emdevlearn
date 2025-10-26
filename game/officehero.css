@@ -17,9 +17,11 @@
   display: block;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  width: 640px;
+  height: 480px;
   max-width: 100%;
-  height: auto;
   touch-action: none;
+  margin: 0 auto;
 }
 
 /* Question Overlay */
