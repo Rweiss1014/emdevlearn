@@ -1,7 +1,11 @@
 // Office Hero: The Soft Skills Sprint
 // 60-second side-scrolling office game with soft-skills scenarios
 
+(function() {
+'use strict';
+
 const officeCanvas = document.getElementById('officeCanvas');
+if (!officeCanvas) return; // Exit if canvas not found
 const officeCtx = officeCanvas.getContext('2d');
 
 // Game constants
@@ -496,6 +500,9 @@ function restartGame() {
   document.getElementById('resultsOverlay').style.display = 'none';
 }
 
+// Expose restartGame globally for HTML button
+window.restartGame = restartGame;
+
 // Render game
 function render() {
   // Clear canvas
@@ -672,3 +679,5 @@ if (imagesLoaded === totalImages) {
   resizeCanvas();
   gameLoop();
 }
+
+})(); // End of IIFE
