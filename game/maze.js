@@ -244,13 +244,13 @@ slimeImg.src = 'game/assets/slime_block_walk_a.png';
 const heartImg = new Image();
 heartImg.src = 'game/assets/heart.png';
 
-// Load gem images
+// Load gem images (onload handlers set up later with other images)
 const gemImgs = [];
 const gemColors = ['blue', 'green', 'red', 'yellow'];
 gemColors.forEach(color => {
   const gemImg = new Image();
-  gemImg.src = `game/assets/gem_${color}.png`;
   gemImgs.push(gemImg);
+  // Don't set src yet - wait until onload handlers are set up
 });
 
 // Load key and lock images
@@ -1183,13 +1183,15 @@ heartImg.onload = imageLoaded;
 keyImg.onload = imageLoaded;
 lockImg.onload = imageLoaded;
 
-// Load gem images
+// Set up gem image handlers and load them
 gemImgs.forEach((gemImg, index) => {
   gemImg.onload = imageLoaded;
   gemImg.onerror = () => {
     console.error(`Failed to load gem ${gemColors[index]} image`);
     imageLoaded();
   };
+  // Now set src to trigger loading
+  gemImg.src = `game/assets/gem_${gemColors[index]}.png`;
 });
 
 // Error handling
