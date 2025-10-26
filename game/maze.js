@@ -33,32 +33,61 @@ const maze = [
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 ];
 
-// E-Learning Question
-const question = "What makes a good team member?";
-
-// Collectible answers (scattered throughout taller maze)
-const answers = [
-  // Correct answers (green) - spread vertically
-  { text: "Listening", x: 3, y: 3, correct: true, collected: false },
-  { text: "Empathy", x: 10, y: 1, correct: true, collected: false },
-  { text: "Respect", x: 17, y: 3, correct: true, collected: false },
-  { text: "Teamwork", x: 6, y: 7, correct: true, collected: false },
-  { text: "Honesty", x: 14, y: 9, correct: true, collected: false },
-  { text: "Support", x: 10, y: 13, correct: true, collected: false },
-
-  // Wrong answers (red) - spread throughout
-  { text: "Gossip", x: 8, y: 5, correct: false, collected: false },
-  { text: "Ego", x: 12, y: 8, correct: false, collected: false },
-  { text: "Blaming", x: 4, y: 11, correct: false, collected: false },
-  { text: "Laziness", x: 16, y: 12, correct: false, collected: false }
+// Multi-level game structure
+const levels = [
+  {
+    question: "What makes a good team member?",
+    answers: [
+      { text: "Listening", x: 3, y: 3, correct: true, collected: false },
+      { text: "Gossip", x: 8, y: 5, correct: false, collected: false },
+      { text: "Ego", x: 12, y: 8, correct: false, collected: false },
+      { text: "Blaming", x: 16, y: 12, correct: false, collected: false }
+    ]
+  },
+  {
+    question: "Best way to handle conflict?",
+    answers: [
+      { text: "Collaborate", x: 10, y: 1, correct: true, collected: false },
+      { text: "Avoid it", x: 4, y: 7, correct: false, collected: false },
+      { text: "Blame", x: 14, y: 9, correct: false, collected: false },
+      { text: "Yell", x: 6, y: 13, correct: false, collected: false }
+    ]
+  },
+  {
+    question: "How to build trust?",
+    answers: [
+      { text: "Honesty", x: 17, y: 3, correct: true, collected: false },
+      { text: "Secrets", x: 8, y: 5, correct: false, collected: false },
+      { text: "Lies", x: 12, y: 10, correct: false, collected: false },
+      { text: "Hiding", x: 4, y: 14, correct: false, collected: false }
+    ]
+  },
+  {
+    question: "Key to productivity?",
+    answers: [
+      { text: "Focus", x: 6, y: 7, correct: true, collected: false },
+      { text: "Multitask", x: 3, y: 3, correct: false, collected: false },
+      { text: "Distract", x: 14, y: 9, correct: false, collected: false },
+      { text: "Procrastinate", x: 10, y: 13, correct: false, collected: false }
+    ]
+  },
+  {
+    question: "You completed all levels!",
+    answers: []
+  }
 ];
 
 // Game state
+let currentLevel = 0;
 let lives = 3;
 let score = 0;
 let invincible = false;
 let flashTimer = 0;
 let animTime = 0; // For animations
+
+// Get current question and answers
+let question = levels[currentLevel].question;
+let answers = levels[currentLevel].answers;
 
 // Player state
 const player = {
@@ -68,12 +97,9 @@ const player = {
   size: 40
 };
 
-// Enemies array - spread across taller maze
+// One green enemy that's slower
 const enemies = [
-  { x: 18.5, y: 1.5, speed: 0.05, size: 40, dirX: 0, dirY: 0, nextDirChange: 0 },
-  { x: 9.5, y: 6.5, speed: 0.05, size: 40, dirX: 0, dirY: 0, nextDirChange: 0 },
-  { x: 18.5, y: 10.5, speed: 0.05, size: 40, dirX: 0, dirY: 0, nextDirChange: 0 },
-  { x: 5.5, y: 14.5, speed: 0.05, size: 40, dirX: 0, dirY: 0, nextDirChange: 0 }
+  { x: 18.5, y: 1.5, speed: 0.03, size: 40, dirX: 0, dirY: 0, nextDirChange: 0 }
 ];
 
 // Keyboard state
@@ -271,6 +297,24 @@ function checkAnswerCollision() {
 
       if (answer.correct) {
         score += 100;
+
+        // Advance to next level
+        setTimeout(() => {
+          currentLevel++;
+          if (currentLevel >= levels.length - 1) {
+            // Completed all levels!
+            alert('🎉 Congratulations! You completed all levels!\nFinal Score: ' + score);
+            currentLevel = levels.length - 1; // Show completion screen
+          } else {
+            alert('✓ Correct! Advancing to Level ' + (currentLevel + 1));
+          }
+
+          // Load next level
+          question = levels[currentLevel].question;
+          answers = levels[currentLevel].answers;
+          player.x = 1.5;
+          player.y = 1.5;
+        }, 100);
       } else {
         score -= 50;
         lives--;
@@ -283,19 +327,12 @@ function checkAnswerCollision() {
           alert('Game Over! Final Score: ' + score + '\nRefresh to play again.');
           lives = 3;
           score = 0;
+          currentLevel = 0;
+          question = levels[currentLevel].question;
+          answers = levels[currentLevel].answers;
           player.x = 1.5;
           player.y = 1.5;
-          answers.forEach(a => a.collected = false);
         }
-      }
-
-      // Check if all correct answers collected
-      const correctAnswers = answers.filter(a => a.correct);
-      const collectedCorrect = correctAnswers.filter(a => a.collected);
-      if (collectedCorrect.length === correctAnswers.length) {
-        setTimeout(() => {
-          alert('Congratulations! You found all the correct answers!\nFinal Score: ' + score);
-        }, 100);
       }
     }
   });
@@ -443,10 +480,10 @@ function render() {
   }
 
   // Draw collectible answers (offset by HUD_HEIGHT)
-  // Make text larger on mobile
+  // Make text BIGGER and easier to read
   const isMobile = window.innerWidth <= 768;
-  const baseBubbleSize = isMobile ? 35 : 28;
-  const fontSize = isMobile ? 16 : 13;
+  const baseBubbleSize = isMobile ? 45 : 35; // Increased from 35/28
+  const fontSize = isMobile ? 20 : 16; // Increased from 16/13
 
   ctx.font = `bold ${fontSize}px Orbitron, monospace, sans-serif`;
   ctx.textAlign = 'center';
@@ -463,9 +500,9 @@ function render() {
     // Pulsing size - larger on mobile
     const pulseSize = baseBubbleSize + Math.sin(animTime * 3 + index) * 2;
 
-    // Draw bubble background with enhanced glow
-    const bubbleColor = answer.correct ? '#10B981' : '#EF4444';
-    const glowColor = answer.correct ? '#34D399' : '#F87171';
+    // All bubbles same color (neutral cyan) - no hint which is correct!
+    const bubbleColor = '#19D4FF';
+    const glowColor = '#19D4FF';
 
     // Outer glow ring
     ctx.shadowBlur = 20;
@@ -477,7 +514,7 @@ function render() {
 
     // Main bubble with gradient
     const bubbleGradient = ctx.createRadialGradient(ax - 5, ay - 5, 5, ax, ay, pulseSize);
-    bubbleGradient.addColorStop(0, answer.correct ? '#34D399' : '#F87171');
+    bubbleGradient.addColorStop(0, '#6DD5FA');
     bubbleGradient.addColorStop(1, bubbleColor);
 
     ctx.shadowBlur = 15;
@@ -487,7 +524,7 @@ function render() {
     ctx.fill();
     ctx.shadowBlur = 0;
 
-    // Draw text with shadow
+    // Draw text with shadow - BIGGER & BOLDER
     ctx.shadowBlur = 3;
     ctx.shadowColor = 'rgba(0,0,0,0.5)';
     ctx.fillStyle = '#FFFFFF';
@@ -506,9 +543,13 @@ function render() {
     ctx.ellipse(ex, ey + enemy.size / 3, enemy.size / 3, enemy.size / 6, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Add menacing red glow
+    // Add green glow for friendly-looking enemy
     ctx.shadowBlur = 15 + Math.sin(animTime * 2 + index) * 5;
-    ctx.shadowColor = '#EF4444';
+    ctx.shadowColor = '#10B981';
+
+    // Draw with green tint
+    ctx.save();
+    ctx.globalCompositeOperation = 'source-over';
 
     if (slimeImg.complete) {
       ctx.drawImage(
@@ -518,13 +559,22 @@ function render() {
         enemy.size,
         enemy.size
       );
+
+      // Add green tint overlay
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.fillStyle = '#10B981';
+      ctx.fillRect(ex - enemy.size / 2, ey - enemy.size / 2, enemy.size, enemy.size);
+
+      ctx.globalCompositeOperation = 'source-over';
     } else {
       // Fallback
-      ctx.fillStyle = '#00FF00';
+      ctx.fillStyle = '#10B981';
       ctx.beginPath();
       ctx.arc(ex, ey, enemy.size / 2, 0, Math.PI * 2);
       ctx.fill();
     }
+
+    ctx.restore();
 
     ctx.shadowBlur = 0;
   });
@@ -612,13 +662,14 @@ function render() {
   const hudScoreSize = isMobile ? 20 : 24;
   const hudLivesSize = isMobile ? 18 : 20;
 
-  // Draw question at top with glow
+  // Draw level indicator and question at top with glow
   ctx.shadowBlur = 8;
   ctx.shadowColor = '#E44FD6';
   ctx.fillStyle = '#E44FD6';
   ctx.font = `bold ${hudQuestionSize}px Orbitron, monospace, sans-serif`;
   ctx.textAlign = 'center';
-  ctx.fillText(question, CANVAS_WIDTH / 2, 30);
+  const levelText = currentLevel < levels.length - 1 ? `Level ${currentLevel + 1}: ${question}` : question;
+  ctx.fillText(levelText, CANVAS_WIDTH / 2, 30);
   ctx.shadowBlur = 0;
 
   // Draw score box with border
