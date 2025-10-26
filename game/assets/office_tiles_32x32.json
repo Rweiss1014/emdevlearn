@@ -1,0 +1,39 @@
+{
+  "frames": {
+    "Modern_Office_32x32.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 1648
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 16,
+        "w": 512,
+        "h": 1648
+      },
+      "sourceSize": {
+        "w": 512,
+        "h": 1696
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://free-tex-packer.com",
+    "version": "0.6.7",
+    "image": "texture.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 512,
+      "h": 1648
+    },
+    "scale": 1
+  }
+}

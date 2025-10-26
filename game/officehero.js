@@ -9,8 +9,8 @@ if (!officeCanvas) return; // Exit if canvas not found
 const officeCtx = officeCanvas.getContext('2d');
 
 // Game constants
-const TILE_SIZE = 16;
-const SCALE = 4; // Display size: 16px * 4 = 64px
+const TILE_SIZE = 32;
+const SCALE = 2; // Display size: 32px * 2 = 64px
 const DISPLAY_TILE_SIZE = TILE_SIZE * SCALE;
 const CANVAS_WIDTH = 640;  // 10 tiles wide
 const CANVAS_HEIGHT = 480; // 7.5 tiles tall
@@ -142,12 +142,16 @@ const npcs = [
 // Current NPC being interacted with
 let currentNPC = null;
 
-// Load sprite sheets
-const officeSheet = new Image();
-officeSheet.src = 'game/assets/Modern_Office_16x16.png';
+// Load sprite sheets (texture atlases)
+const officeTilesSheet = new Image();
+officeTilesSheet.src = 'game/assets/office_tiles_32x32.png'; // Modern_Office_32x32 at (0,0) 512x1648
 
-const characterSheet = new Image();
-characterSheet.src = 'game/assets/PixelOfficeAssets.png';
+const characterAtlas = new Image();
+characterAtlas.src = 'game/assets/office_atlas1.png'; // Contains LargePixelOffice, PixelOffice, PixelOfficeAssets
+
+// Atlas coordinates for character sprites (PixelOfficeAssets is at x:1280, y:0, w:256, h:157)
+const CHAR_ATLAS_X = 1280;
+const CHAR_ATLAS_Y = 0;
 
 // Load sound effects (using existing sounds as fallback)
 const correctSound = new Audio('game/assets/sfx_gem.ogg'); // TODO: Replace with sfx_correct.ogg
@@ -173,15 +177,15 @@ function imageLoaded() {
   }
 }
 
-officeSheet.onload = imageLoaded;
-characterSheet.onload = imageLoaded;
+officeTilesSheet.onload = imageLoaded;
+characterAtlas.onload = imageLoaded;
 
-officeSheet.onerror = () => {
-  console.error('Failed to load office sprite sheet');
+officeTilesSheet.onerror = () => {
+  console.error('Failed to load office tiles sheet');
   imageLoaded();
 };
-characterSheet.onerror = () => {
-  console.error('Failed to load character sprite sheet');
+characterAtlas.onerror = () => {
+  console.error('Failed to load character atlas');
   imageLoaded();
 };
 
@@ -251,10 +255,10 @@ function resizeCanvas() {
 
 window.addEventListener('resize', resizeCanvas);
 
-// Draw a tile from the sprite sheet
+// Draw a tile from the sprite sheet (32x32 tiles)
 function drawTile(tileX, tileY, x, y) {
   officeCtx.drawImage(
-    officeSheet,
+    officeTilesSheet,
     tileX * TILE_SIZE,
     tileY * TILE_SIZE,
     TILE_SIZE,
@@ -551,19 +555,20 @@ function render() {
 
         // Only render tiles on screen
         if (screenX > -DISPLAY_TILE_SIZE && screenX < CANVAS_WIDTH) {
-          // Map tile IDs to sprite sheet positions
+          // Map tile IDs to sprite sheet positions (32x32 Modern Office tiles)
+          // Sheet is 512px wide = 16 tiles per row
           if (tile === 0) {
             drawTile(0, 0, screenX, screenY); // Floor
           } else if (tile === 1) {
-            drawTile(1, 0, screenX, screenY); // Wall
+            drawTile(0, 1, screenX, screenY); // Wall
           } else if (tile === 2) {
-            drawTile(3, 2, screenX, screenY); // Desk
+            drawTile(2, 0, screenX, screenY); // Desk
           } else if (tile === 3) {
-            drawTile(5, 3, screenX, screenY); // Plant
+            drawTile(3, 0, screenX, screenY); // Plant
           } else if (tile === 4) {
-            drawTile(4, 2, screenX, screenY); // Computer
+            drawTile(4, 0, screenX, screenY); // Computer
           } else if (tile === 5) {
-            drawTile(6, 4, screenX, screenY); // Vending machine
+            drawTile(5, 0, screenX, screenY); // Vending machine
           }
         }
       }
@@ -576,15 +581,15 @@ function render() {
     const screenY = npc.y;
 
     if (screenX > -DISPLAY_TILE_SIZE && screenX < CANVAS_WIDTH) {
-      // Draw NPC sprite (using character from sprite sheet)
-      // Each NPC uses a different character sprite
+      // Draw NPC sprite (using character from atlas)
+      // Each NPC uses a different character sprite (16x16 sprites in the atlas)
       const npcIndex = npcs.indexOf(npc);
-      const spriteX = npcIndex * 16; // Characters are 16px wide in sprite sheet
-      const spriteY = 0; // Top row of sprite sheet
+      const spriteX = CHAR_ATLAS_X + (npcIndex * 16); // Characters are 16px wide
+      const spriteY = CHAR_ATLAS_Y; // Top row
 
-      if (characterSheet.complete && characterSheet.naturalWidth > 0) {
+      if (characterAtlas.complete && characterAtlas.naturalWidth > 0) {
         officeCtx.drawImage(
-          characterSheet,
+          characterAtlas,
           spriteX, spriteY, 16, 16,
           screenX, screenY, DISPLAY_TILE_SIZE, DISPLAY_TILE_SIZE
         );
@@ -612,13 +617,13 @@ function render() {
   // Render player
   const playerScreenX = player.x - cameraX;
 
-  // Player sprite animation (walk cycle)
-  const playerSpriteX = player.frameIndex * 16; // Animation frame
-  const playerSpriteY = player.direction === 'left' ? 16 : 0; // Row in sprite sheet
+  // Player sprite animation (walk cycle) - 16x16 sprites in atlas
+  const playerSpriteX = CHAR_ATLAS_X + (player.frameIndex * 16); // Animation frame
+  const playerSpriteY = CHAR_ATLAS_Y + (player.direction === 'left' ? 16 : 0); // Row in atlas
 
-  if (characterSheet.complete && characterSheet.naturalWidth > 0) {
+  if (characterAtlas.complete && characterAtlas.naturalWidth > 0) {
     officeCtx.drawImage(
-      characterSheet,
+      characterAtlas,
       playerSpriteX, playerSpriteY, 16, 16,
       playerScreenX, player.y, player.width, player.height
     );
