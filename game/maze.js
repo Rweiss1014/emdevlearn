@@ -5,10 +5,10 @@ const ctx = canvas.getContext('2d');
 // Game constants
 const TILE_SIZE = 48;
 const CANVAS_WIDTH = 960;
-const CANVAS_HEIGHT = 672; // 14 rows for better screen fit (was 860)
 const HUD_HEIGHT = 90;
-const GRID_WIDTH = CANVAS_WIDTH / TILE_SIZE;  // 20
 const GRID_HEIGHT = 14; // 14 rows fits better on screen
+const CANVAS_HEIGHT = HUD_HEIGHT + (GRID_HEIGHT * TILE_SIZE); // 90 + 672 = 762px
+const GRID_WIDTH = CANVAS_WIDTH / TILE_SIZE;  // 20
 
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
