@@ -261,6 +261,8 @@ const lockImg = new Image();
 lockImg.src = 'game/assets/lock.png';
 
 const hurtSound = new Audio('game/assets/sfx_hurt.ogg');
+const gemSound = new Audio('game/assets/sfx_gem.ogg');
+const magicSound = new Audio('game/assets/sfx_magic.ogg');
 
 // Event listeners for keyboard
 window.addEventListener('keydown', (e) => {
@@ -521,6 +523,10 @@ function checkGemCollision() {
       gem.collected = true;
       score += 50; // Gem points
 
+      // Play gem collection sound
+      gemSound.currentTime = 0;
+      gemSound.play().catch(e => console.log('Audio play failed:', e));
+
       // Freeze enemies for 2 seconds (120 frames at 60fps)
       enemiesFrozen = true;
       freezeTimer = 120;
@@ -552,6 +558,10 @@ function checkLockCollision() {
     // Unlock! Advance to next level
     lockVisible = false;
     keyCollected = false;
+
+    // Play magic unlock sound
+    magicSound.currentTime = 0;
+    magicSound.play().catch(e => console.log('Audio play failed:', e));
 
     currentLevel++;
     if (currentLevel >= levels.length - 1) {
