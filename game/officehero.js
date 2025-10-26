@@ -162,9 +162,13 @@ function imageLoaded() {
   console.log(`Office Hero: Image loaded ${imagesLoaded}/${totalImages}`);
   if (imagesLoaded === totalImages) {
     console.log('Office Hero: All images loaded, starting game');
+    console.log('Office Hero: Canvas dimensions:', officeCanvas.width, 'x', officeCanvas.height);
+    console.log('Office Hero: Canvas display size:', officeCanvas.style.width, 'x', officeCanvas.style.height);
     gameState = 'intro';
     setupControls();
+    setupMobileControls();
     resizeCanvas();
+    console.log('Office Hero: Starting game loop, gameState =', gameState);
     gameLoop();
   }
 }
@@ -510,6 +514,7 @@ function render() {
   officeCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
   if (gameState === 'loading') {
+    console.log('Office Hero: Rendering loading screen');
     officeCtx.fillStyle = '#FFFFFF';
     officeCtx.font = '24px Orbitron, sans-serif';
     officeCtx.textAlign = 'center';
@@ -518,6 +523,7 @@ function render() {
   }
 
   if (gameState === 'intro') {
+    console.log('Office Hero: Rendering intro screen');
     officeCtx.fillStyle = '#FFFFFF';
     officeCtx.font = '32px Orbitron, sans-serif';
     officeCtx.textAlign = 'center';
@@ -669,15 +675,6 @@ function gameLoop(currentTime = 0) {
   }
 
   requestAnimationFrame(gameLoop);
-}
-
-// Initialize on load
-if (imagesLoaded === totalImages) {
-  gameState = 'intro';
-  setupControls();
-  setupMobileControls();
-  resizeCanvas();
-  gameLoop();
 }
 
 })(); // End of IIFE
