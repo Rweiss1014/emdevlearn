@@ -192,6 +192,23 @@ function isWall(x, y) {
   return maze[row][col] === 1;
 }
 
+// Check collision with proper bounds (prevents sprite overlap with walls)
+function checkCollision(x, y) {
+  // Check center point and points around the sprite perimeter
+  const offset = 0.35; // ~40% of a tile = keeps sprite from overlapping walls
+
+  // Check center
+  if (isWall(x, y)) return true;
+
+  // Check 4 corners around the sprite
+  if (isWall(x - offset, y - offset)) return true; // top-left
+  if (isWall(x + offset, y - offset)) return true; // top-right
+  if (isWall(x - offset, y + offset)) return true; // bottom-left
+  if (isWall(x + offset, y + offset)) return true; // bottom-right
+
+  return false;
+}
+
 // Update player position
 function update() {
   let dx = 0;
@@ -208,15 +225,15 @@ function update() {
     dy *= 0.707;
   }
 
-  // Try to move horizontally
+  // Try to move horizontally with proper collision
   const newX = player.x + dx * player.speed;
-  if (!isWall(newX, player.y)) {
+  if (!checkCollision(newX, player.y)) {
     player.x = newX;
   }
 
-  // Try to move vertically
+  // Try to move vertically with proper collision
   const newY = player.y + dy * player.speed;
-  if (!isWall(player.x, newY)) {
+  if (!checkCollision(player.x, newY)) {
     player.y = newY;
   }
 
@@ -307,17 +324,17 @@ function updateEnemies() {
       enemy.nextDirChange = 60 + Math.random() * 60; // Change direction every 1-2 seconds
     }
 
-    // Try to move in current direction
+    // Try to move in current direction with proper collision
     const newX = enemy.x + enemy.dirX * enemy.speed;
     const newY = enemy.y + enemy.dirY * enemy.speed;
 
-    if (!isWall(newX, enemy.y)) {
+    if (!checkCollision(newX, enemy.y)) {
       enemy.x = newX;
     } else {
       enemy.nextDirChange = 0; // Hit wall, change direction
     }
 
-    if (!isWall(enemy.x, newY)) {
+    if (!checkCollision(enemy.x, newY)) {
       enemy.y = newY;
     } else {
       enemy.nextDirChange = 0; // Hit wall, change direction
