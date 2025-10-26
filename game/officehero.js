@@ -145,9 +145,9 @@ officeSheet.src = 'game/assets/Modern_Office_16x16.png';
 const characterSheet = new Image();
 characterSheet.src = 'game/assets/PixelOfficeAssets.png';
 
-// Load sound effects
-const correctSound = new Audio('game/assets/sfx_correct.ogg');
-const wrongSound = new Audio('game/assets/sfx_wrong.ogg');
+// Load sound effects (using existing sounds as fallback)
+const correctSound = new Audio('game/assets/sfx_gem.ogg'); // TODO: Replace with sfx_correct.ogg
+const wrongSound = new Audio('game/assets/sfx_hurt.ogg'); // TODO: Replace with sfx_wrong.ogg
 
 // Wait for images to load
 let imagesLoaded = 0;
@@ -354,6 +354,9 @@ function update(deltaTime) {
     player.frameIndex = 0;
   }
 
+  // Update particles
+  updateParticles(deltaTime);
+
   // Update current room
   currentRoom = Math.floor(player.x / (10 * DISPLAY_TILE_SIZE));
 
@@ -411,10 +414,52 @@ function handleAnswer(answerIndex) {
   }, 1000);
 }
 
+// Feedback particles
+let feedbackParticles = [];
+
 // Show visual feedback
 function showFeedback(correct) {
-  // TODO: Add sparkle or red flash animation
-  console.log(correct ? 'Correct!' : 'Wrong!');
+  // Create particle effect at player position
+  const numParticles = 10;
+  const color = correct ? '#10B981' : '#EF4444';
+
+  for (let i = 0; i < numParticles; i++) {
+    feedbackParticles.push({
+      x: player.x + player.width / 2,
+      y: player.y + player.height / 2,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 6 - 2,
+      life: 1.0,
+      color: color,
+      size: 4 + Math.random() * 4
+    });
+  }
+}
+
+// Update particles
+function updateParticles(deltaTime) {
+  for (let i = feedbackParticles.length - 1; i >= 0; i--) {
+    const p = feedbackParticles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.2; // Gravity
+    p.life -= deltaTime * 2;
+
+    if (p.life <= 0) {
+      feedbackParticles.splice(i, 1);
+    }
+  }
+}
+
+// Render particles
+function renderParticles(cameraX) {
+  for (let p of feedbackParticles) {
+    const screenX = p.x - cameraX;
+    officeCtx.globalAlpha = p.life;
+    officeCtx.fillStyle = p.color;
+    officeCtx.fillRect(screenX - p.size / 2, p.y - p.size / 2, p.size, p.size);
+    officeCtx.globalAlpha = 1.0;
+  }
 }
 
 // Show results screen
@@ -518,22 +563,60 @@ function render() {
     const screenY = npc.y;
 
     if (screenX > -DISPLAY_TILE_SIZE && screenX < CANVAS_WIDTH) {
-      // Draw NPC (using fallback for now)
-      officeCtx.fillStyle = npc.talked ? '#10B981' : '#19D4FF';
-      officeCtx.fillRect(screenX, screenY, DISPLAY_TILE_SIZE, DISPLAY_TILE_SIZE);
+      // Draw NPC sprite (using character from sprite sheet)
+      // Each NPC uses a different character sprite
+      const npcIndex = npcs.indexOf(npc);
+      const spriteX = npcIndex * 16; // Characters are 16px wide in sprite sheet
+      const spriteY = 0; // Top row of sprite sheet
+
+      if (characterSheet.complete && characterSheet.naturalWidth > 0) {
+        officeCtx.drawImage(
+          characterSheet,
+          spriteX, spriteY, 16, 16,
+          screenX, screenY, DISPLAY_TILE_SIZE, DISPLAY_TILE_SIZE
+        );
+      } else {
+        // Fallback if sprite sheet not loaded
+        officeCtx.fillStyle = npc.talked ? '#10B981' : '#19D4FF';
+        officeCtx.fillRect(screenX, screenY, DISPLAY_TILE_SIZE, DISPLAY_TILE_SIZE);
+      }
 
       // Draw name tag
       officeCtx.fillStyle = '#FFFFFF';
       officeCtx.font = '12px Arial';
       officeCtx.textAlign = 'center';
       officeCtx.fillText(npc.name, screenX + DISPLAY_TILE_SIZE / 2, screenY - 5);
+
+      // Draw checkmark if talked to
+      if (npc.talked) {
+        officeCtx.fillStyle = '#10B981';
+        officeCtx.font = 'bold 20px Arial';
+        officeCtx.fillText('✓', screenX + DISPLAY_TILE_SIZE / 2, screenY + DISPLAY_TILE_SIZE + 15);
+      }
     }
   }
 
   // Render player
   const playerScreenX = player.x - cameraX;
-  officeCtx.fillStyle = '#FFD700';
-  officeCtx.fillRect(playerScreenX, player.y, player.width, player.height);
+
+  // Player sprite animation (walk cycle)
+  const playerSpriteX = player.frameIndex * 16; // Animation frame
+  const playerSpriteY = player.direction === 'left' ? 16 : 0; // Row in sprite sheet
+
+  if (characterSheet.complete && characterSheet.naturalWidth > 0) {
+    officeCtx.drawImage(
+      characterSheet,
+      playerSpriteX, playerSpriteY, 16, 16,
+      playerScreenX, player.y, player.width, player.height
+    );
+  } else {
+    // Fallback if sprite sheet not loaded
+    officeCtx.fillStyle = '#FFD700';
+    officeCtx.fillRect(playerScreenX, player.y, player.width, player.height);
+  }
+
+  // Render particles (feedback effects)
+  renderParticles(cameraX);
 
   // Render HUD
   renderHUD();
