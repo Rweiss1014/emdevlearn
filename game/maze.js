@@ -426,7 +426,12 @@ function render() {
   }
 
   // Draw collectible answers (offset by HUD_HEIGHT)
-  ctx.font = 'bold 13px Orbitron, monospace, sans-serif';
+  // Make text larger on mobile
+  const isMobile = window.innerWidth <= 768;
+  const baseBubbleSize = isMobile ? 35 : 28;
+  const fontSize = isMobile ? 16 : 13;
+
+  ctx.font = `bold ${fontSize}px Orbitron, monospace, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
@@ -438,8 +443,8 @@ function render() {
     const floatOffset = Math.sin(animTime * 2 + index) * 3;
     const ay = answer.y * TILE_SIZE + HUD_HEIGHT + floatOffset;
 
-    // Pulsing size
-    const pulseSize = 25 + Math.sin(animTime * 3 + index) * 2;
+    // Pulsing size - larger on mobile
+    const pulseSize = baseBubbleSize + Math.sin(animTime * 3 + index) * 2;
 
     // Draw bubble background with enhanced glow
     const bubbleColor = answer.correct ? '#10B981' : '#EF4444';
@@ -585,11 +590,16 @@ function render() {
   ctx.stroke();
   ctx.shadowBlur = 0;
 
+  // Responsive HUD text sizes
+  const hudQuestionSize = isMobile ? 18 : 22;
+  const hudScoreSize = isMobile ? 20 : 24;
+  const hudLivesSize = isMobile ? 18 : 20;
+
   // Draw question at top with glow
   ctx.shadowBlur = 8;
   ctx.shadowColor = '#E44FD6';
   ctx.fillStyle = '#E44FD6';
-  ctx.font = 'bold 22px Orbitron, monospace, sans-serif';
+  ctx.font = `bold ${hudQuestionSize}px Orbitron, monospace, sans-serif`;
   ctx.textAlign = 'center';
   ctx.fillText(question, CANVAS_WIDTH / 2, 30);
   ctx.shadowBlur = 0;
@@ -602,7 +612,7 @@ function render() {
   ctx.shadowBlur = 5;
   ctx.shadowColor = '#19D4FF';
   ctx.fillStyle = '#19D4FF';
-  ctx.font = 'bold 24px Orbitron, monospace, sans-serif';
+  ctx.font = `bold ${hudScoreSize}px Orbitron, monospace, sans-serif`;
   ctx.textAlign = 'left';
   ctx.fillText('Score: ' + score, 25, 68);
   ctx.shadowBlur = 0;
@@ -613,7 +623,7 @@ function render() {
 
   ctx.textAlign = 'right';
   ctx.fillStyle = '#FF4444';
-  ctx.font = 'bold 20px Orbitron, monospace, sans-serif';
+  ctx.font = `bold ${hudLivesSize}px Orbitron, monospace, sans-serif`;
   ctx.fillText('Lives:', CANVAS_WIDTH - 115, 68);
 
   if (heartImg.complete && heartImg.naturalWidth > 0) {
