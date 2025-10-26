@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DevLearn Demo • E.M. Designs</title>
+  <meta name="description" content="AI-powered, gamified learning that people actually finish. Play a 60-second training game.">
+  <meta property="og:title" content="Play the 60-Second Training Game">
+  <meta property="og:description" content="See how content turns into decisions people remember.">
+  <meta property="og:image" content="img/og.png">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="stylesheet" href="game/game.css">
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .hero-bg { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header" role="banner">
+    <div class="container header-inner">
+      <div class="brand">E.M. Designs</div>
+      <nav class="nav" aria-label="Primary">
+        <a href="#work">Work</a>
+        <a href="#game">Mini-Game</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a class="btn btn-primary" href="#free-kit">Get the Free Kit</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="content">
+    <section class="hero section" aria-labelledby="hero-heading">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container hero-content">
+        <div>
+          <h1 id="hero-heading" class="h1">AI-Powered Gamified Learning That People Actually Finish</h1>
+          <p>I build fast, fun training that drives behavior change. Live at DevLearn.</p>
+          <p class="small">DevLearn 2025 • Nov 12–14 • Las Vegas</p>
+          <div style="display:flex; gap:12px; flex-wrap: wrap; margin-top: 12px;">
+            <a class="btn btn-primary" href="#game">Play the 60-Second Demo</a>
+            <a class="btn btn-ghost" href="#work">See 3 Real Projects</a>
+          </div>
+          <div class="trust">
+            <div class="item small">Interactive, scenario-driven training used by national teams</div>
+            <div class="item small">Compliance made playable across regulated industries</div>
+            <div class="item small">Measured outcomes tied to job performance</div>
+          </div>
+        </div>
+        <div class="hero-media">Looping micro-interaction placeholder</div>
+      </div>
+    </section>
+
+    <section id="work" class="section container" aria-labelledby="work-heading">
+      <h2 id="work-heading" class="h2">Work Snapshots</h2>
+      <div class="cards">
+        <article class="card">
+          <h3 class="h3">Call Center Scenario Game</h3>
+          <p>Problem: new reps struggled with call openings. Outcome: 22 percent faster ramp.</p>
+          <ul>
+            <li>Audience: call center</li>
+            <li>Modality: scenario game</li>
+            <li>Impact: time to proficiency down</li>
+          </ul>
+          <a class="more" href="#" aria-label="Open case snapshot 1">Open case snapshot →</a>
+        </article>
+        <article class="card">
+          <h3 class="h3">Compliance Bingo Refresher</h3>
+          <p>Problem: stale compliance refresh. Outcome: 31 percent higher monthly completion.</p>
+          <ul>
+            <li>Audience: all staff</li>
+            <li>Modality: bingo micro-game</li>
+            <li>Impact: completion up</li>
+          </ul>
+          <a class="more" href="#" aria-label="Open case snapshot 2">Open case snapshot →</a>
+        </article>
+        <article class="card">
+          <h3 class="h3">ROI Walkthrough for Managers</h3>
+          <p>Problem: decisions lacked data. Outcome: live KPI deltas during walkthrough.</p>
+          <ul>
+            <li>Audience: managers</li>
+            <li>Modality: interactive walkthrough</li>
+            <li>Impact: better choices</li>
+          </ul>
+          <a class="more" href="#" aria-label="Open case snapshot 3">Open case snapshot →</a>
+        </article>
+      </div>
+    </section>
+
+<!-- Maze Game -->
+<section id="game" class="section" aria-labelledby="game-heading">
+  <div class="container">
+    <h2 id="game-heading" class="h2">Soft Skills Challenge</h2>
+    <p class="small game-instructions">Collect GREEN answers, avoid RED ones and enemies. <span class="desktop-only">Arrow Keys/WASD</span><span class="mobile-only">Touch controls below</span></p>
+    <div class="game-wrap">
+      <canvas id="gameCanvas" aria-label="Soft Skills Maze Game"></canvas>
+    </div>
+  </div>
+</section>
+<script src="game/maze.js" defer></script>
+
+    <section id="about" class="section container" aria-labelledby="about-heading">
+      <h2 id="about-heading" class="h2">How I Work</h2>
+      <div class="cards">
+        <div class="card">
+          <h3 class="h3">Diagnose</h3>
+          <p>Clarify the job task and the decision that matters.</p>
+        </div>
+        <div class="card">
+          <h3 class="h3">Design to decision</h3>
+          <p>Prototype one interaction that proves behavior change.</p>
+        </div>
+        <div class="card">
+          <h3 class="h3">Deploy and measure</h3>
+          <p>Instrument for completion and on the job KPI.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="free-kit" class="section container" aria-labelledby="kit-heading">
+      <h2 id="kit-heading" class="h2">Free Kit</h2>
+      <p>Get 7 micro patterns for faster training. One page cheat sheet plus a quick picker.</p>
+      <form onsubmit="event.preventDefault(); alert('Simulated download. Hook this to your email tool.');">
+        <input class="input" type="email" required placeholder="Email">
+        <button class="btn btn-primary" type="submit">Download the PDF</button>
+      </form>
+    </section>
+
+    <section id="contact" class="section container" aria-labelledby="contact-heading">
+      <h2 id="contact-heading" class="h2">Book a Design Jam</h2>
+      <p>Have 15 minutes? Bring a problem. Leave with a prototype plan.</p>
+      <a class="btn btn-primary" href="#" target="_blank" rel="noopener">Open Calendly</a>
+    </section>
+  </main>
+
+  <footer role="contentinfo">
+    <div class="container small">
+      <p>© E.M. Designs. Not affiliated with DevLearn or The Learning Guild.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

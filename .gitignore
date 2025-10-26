@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build files
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Zip files (we have the extracted content)
+*.zip
+
+# Temporary files
+*.log
+*.tmp
+
+# Python cache (from http.server)
+__pycache__/
+*.pyc

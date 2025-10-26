@@ -1,0 +1,135 @@
+.game-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 24px auto;
+  max-width: 100%;
+  gap: 20px;
+}
+
+#gameCanvas {
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  background: #0F1117;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  max-width: 100%;
+  height: auto;
+  touch-action: none; /* Prevent scrolling while playing */
+}
+
+/* Better mobile layout */
+@media (max-width: 767px) {
+  #gameCanvas {
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .game-wrap {
+    margin: 0 auto;
+    gap: 16px;
+    padding: 0;
+  }
+}
+
+/* Mobile Controls */
+#mobileControls {
+  display: block;
+  margin-top: 20px;
+}
+
+.dpad {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+}
+
+.dpad-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.dpad-btn {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: rgba(106, 47, 232, 0.6);
+  border: 2px solid rgba(228, 79, 214, 0.8);
+  border-radius: 8px;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dpad-btn:active {
+  background: rgba(228, 79, 214, 0.8);
+  transform: scale(0.95);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.dpad-up {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.dpad-down {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.dpad-left {
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.dpad-right {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Hide mobile controls on desktop */
+@media (min-width: 768px) {
+  #mobileControls {
+    display: none;
+  }
+}
+
+/* Improve touch target sizes on mobile */
+@media (max-width: 767px) {
+  .dpad {
+    width: 180px;
+    height: 180px;
+  }
+
+  .dpad-btn {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+  }
+
+  .dpad-center {
+    width: 50px;
+    height: 50px;
+  }
+}
