@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=2">
   <link rel="stylesheet" href="game/game.css">
+  <link rel="stylesheet" href="game/officehero.css">
   <style>
     @media (prefers-reduced-motion: reduce) {
       .hero-bg { display: none; }
@@ -90,17 +91,86 @@
       </div>
     </section>
 
-<!-- Maze Game -->
+<!-- Games Section -->
 <section id="game" class="section" aria-labelledby="game-heading">
   <div class="container">
-    <h2 id="game-heading" class="h2">Soft Skills Challenge</h2>
-    <p class="small game-instructions">Collect GREEN answers, avoid RED ones and enemies. <span class="desktop-only">Arrow Keys/WASD</span><span class="mobile-only">Touch controls below</span></p>
-    <div class="game-wrap">
-      <canvas id="gameCanvas" aria-label="Soft Skills Maze Game"></canvas>
+    <h2 id="game-heading" class="h2">Soft Skills Games</h2>
+
+    <!-- Game Selector -->
+    <div class="game-selector">
+      <button class="game-select-btn active" onclick="switchGame('maze')">Maze Runner</button>
+      <button class="game-select-btn" onclick="switchGame('office')">Office Hero</button>
+    </div>
+
+    <!-- Maze Game -->
+    <div id="mazeGame" class="game-container active">
+      <p class="small game-instructions">Collect answers, avoid enemies. Find the key & unlock! <span class="desktop-only">Arrow Keys/WASD</span><span class="mobile-only">Touch controls below</span></p>
+      <div class="game-wrap">
+        <canvas id="gameCanvas" aria-label="Soft Skills Maze Game"></canvas>
+      </div>
+    </div>
+
+    <!-- Office Hero Game -->
+    <div id="officeGame" class="game-container">
+      <p class="small game-instructions">Navigate through the office and make the right choices! <span class="desktop-only">Arrow Keys/A+D</span><span class="mobile-only">Touch controls below</span></p>
+      <div class="office-game-wrap">
+        <canvas id="officeCanvas" aria-label="Office Hero Game"></canvas>
+        <!-- Mobile Controls -->
+        <div id="officeMobileControls">
+          <div class="office-controls">
+            <button class="office-btn" id="officeLeftBtn">←</button>
+            <button class="office-btn" id="officeRightBtn">→</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
+
+<!-- Question Overlay for Office Hero -->
+<div id="questionOverlay">
+  <div class="question-box">
+    <h3 id="qTitle"></h3>
+    <p id="qText"></p>
+    <div class="answer-buttons">
+      <button class="answer-btn"></button>
+      <button class="answer-btn"></button>
+      <button class="answer-btn"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Results Overlay for Office Hero -->
+<div id="resultsOverlay">
+  <div class="results-box">
+    <h2>Game Complete!</h2>
+    <p id="finalScore"></p>
+    <p id="resultMessage"></p>
+    <button class="restart-btn" onclick="restartGame()">Play Again</button>
+  </div>
+</div>
+
+<!-- Game Scripts -->
 <script src="game/maze.js" defer></script>
+<script src="game/officehero.js" defer></script>
+<script>
+  function switchGame(game) {
+    // Update button states
+    document.querySelectorAll('.game-select-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+
+    // Show/hide games
+    if (game === 'maze') {
+      document.getElementById('mazeGame').classList.add('active');
+      document.getElementById('officeGame').classList.remove('active');
+    } else {
+      document.getElementById('mazeGame').classList.remove('active');
+      document.getElementById('officeGame').classList.add('active');
+    }
+  }
+</script>
 
     <section id="about" class="section container" aria-labelledby="about-heading">
       <h2 id="about-heading" class="h2">How I Work</h2>
