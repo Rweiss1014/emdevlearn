@@ -5,15 +5,15 @@ const ctx = canvas.getContext('2d');
 // Game constants
 const TILE_SIZE = 48;
 const CANVAS_WIDTH = 960;
-const CANVAS_HEIGHT = 860; // Increased for taller maze
+const CANVAS_HEIGHT = 672; // 14 rows for better screen fit (was 860)
 const HUD_HEIGHT = 90;
 const GRID_WIDTH = CANVAS_WIDTH / TILE_SIZE;  // 20
-const GRID_HEIGHT = 16; // Increased from 11 to 16 rows
+const GRID_HEIGHT = 14; // 14 rows fits better on screen
 
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
 
-// Different maze layouts for each level (0 = floor, 1 = wall)
+// Different maze layouts for each level (0 = floor, 1 = wall) - 14 rows for better fit
 const mazes = [
   // Level 1: Simple open maze with few obstacles
   [
@@ -29,8 +29,6 @@ const mazes = [
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,1,1,0,0,0,1,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
   ],
@@ -49,8 +47,6 @@ const mazes = [
     [1,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,0,1,0,0,0,1,1,0,0,1,1,0,0,0,1,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
   ],
   // Level 3: Even more challenging
@@ -68,8 +64,6 @@ const mazes = [
     [1,0,1,0,0,1,0,0,1,1,1,1,0,0,1,0,0,1,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,0,1,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
   ],
   // Level 4: Most challenging
@@ -87,54 +81,52 @@ const mazes = [
     [1,0,0,1,0,1,1,0,0,0,0,0,0,1,1,0,1,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,1,0,0,1,0,1,0,1,1,0,1,0,1,0,0,1,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
   ]
 ];
 
 let maze = mazes[0]; // Start with level 1 maze
 
-// Multi-level game structure - correct answers far from spawn (1.5, 1.5)
+// Multi-level game structure - correct answers in different spots each level
 const levels = [
   {
     question: "What makes a good team member?",
     enemyCount: 1,
     answers: [
-      { text: "Listening", x: 17, y: 13, correct: true, collected: false }, // Far from spawn
-      { text: "Gossip", x: 6, y: 4, correct: false, collected: false },
-      { text: "Ego", x: 12, y: 7, correct: false, collected: false },
-      { text: "Blaming", x: 8, y: 11, correct: false, collected: false }
+      { text: "Listening", x: 6, y: 8, correct: true, collected: false }, // Middle-left area
+      { text: "Gossip", x: 12, y: 4, correct: false, collected: false },
+      { text: "Ego", x: 17, y: 10, correct: false, collected: false },
+      { text: "Blaming", x: 10, y: 11, correct: false, collected: false }
     ]
   },
   {
     question: "Best way to handle conflict?",
     enemyCount: 2,
     answers: [
-      { text: "Collaborate", x: 17, y: 14, correct: true, collected: false }, // Far from spawn
-      { text: "Avoid it", x: 5, y: 5, correct: false, collected: false },
-      { text: "Blame", x: 10, y: 8, correct: false, collected: false },
-      { text: "Yell", x: 14, y: 10, correct: false, collected: false }
+      { text: "Collaborate", x: 16, y: 3, correct: true, collected: false }, // Upper-right area
+      { text: "Avoid it", x: 5, y: 6, correct: false, collected: false },
+      { text: "Blame", x: 10, y: 9, correct: false, collected: false },
+      { text: "Yell", x: 8, y: 11, correct: false, collected: false }
     ]
   },
   {
     question: "How to build trust?",
     enemyCount: 3,
     answers: [
-      { text: "Honesty", x: 18, y: 13, correct: true, collected: false }, // Far from spawn
-      { text: "Secrets", x: 7, y: 5, correct: false, collected: false },
-      { text: "Lies", x: 12, y: 9, correct: false, collected: false },
-      { text: "Hiding", x: 5, y: 12, correct: false, collected: false }
+      { text: "Honesty", x: 4, y: 11, correct: true, collected: false }, // Lower-left area
+      { text: "Secrets", x: 11, y: 4, correct: false, collected: false },
+      { text: "Lies", x: 16, y: 8, correct: false, collected: false },
+      { text: "Hiding", x: 8, y: 10, correct: false, collected: false }
     ]
   },
   {
     question: "Key to productivity?",
     enemyCount: 4,
     answers: [
-      { text: "Focus", x: 17, y: 13, correct: true, collected: false }, // Far from spawn
-      { text: "Multitask", x: 6, y: 3, correct: false, collected: false },
-      { text: "Distract", x: 10, y: 7, correct: false, collected: false },
-      { text: "Procrastinate", x: 14, y: 11, correct: false, collected: false }
+      { text: "Focus", x: 14, y: 9, correct: true, collected: false }, // Middle-right area
+      { text: "Multitask", x: 5, y: 4, correct: false, collected: false },
+      { text: "Distract", x: 10, y: 11, correct: false, collected: false },
+      { text: "Procrastinate", x: 17, y: 6, correct: false, collected: false }
     ]
   },
   {
@@ -171,9 +163,9 @@ const player = {
 function generateEnemies(count) {
   const enemyPositions = [
     { x: 18.5, y: 1.5 },
-    { x: 18.5, y: 14.5 },
-    { x: 1.5, y: 14.5 },
-    { x: 10, y: 8 }
+    { x: 18.5, y: 12.5 },
+    { x: 1.5, y: 12.5 },
+    { x: 10, y: 7 }
   ];
 
   const newEnemies = [];
