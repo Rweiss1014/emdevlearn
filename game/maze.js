@@ -469,7 +469,7 @@ function checkAnswerCollision() {
 
         // Spawn key and lock on opposite sides
         keyPosition = { x: 2.5, y: 2.5 }; // Left side
-        lockPosition = { x: 17.5, y: 9.5 }; // Right side
+        lockPosition = { x: 17.5, y: 5.5 }; // Right side - more accessible
         keyVisible = true;
         lockVisible = true;
         keyCollected = false;
@@ -810,9 +810,9 @@ function render() {
     // Pulsing size - larger on mobile
     const pulseSize = baseBubbleSize + Math.sin(animTime * 3 + index) * 2;
 
-    // All bubbles same color (neutral cyan) - no hint which is correct!
-    const bubbleColor = '#19D4FF';
-    const glowColor = '#19D4FF';
+    // Correct answer is GREEN, wrong answers are CYAN
+    const bubbleColor = answer.correct ? '#10B981' : '#19D4FF';
+    const glowColor = answer.correct ? '#10B981' : '#19D4FF';
 
     // Outer glow ring
     ctx.shadowBlur = 20;
