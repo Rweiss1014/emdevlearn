@@ -415,6 +415,7 @@ function update() {
     levelPopupTimer--;
     if (levelPopupTimer <= 0) {
       showLevelPopup = false;
+      gamePaused = false; // Unpause when popup closes
     }
   }
 
@@ -467,17 +468,18 @@ function checkAnswerCollision() {
       if (answer.correct) {
         score += 100;
 
-        // Spawn key and lock on opposite sides
-        keyPosition = { x: 2.5, y: 2.5 }; // Left side
-        lockPosition = { x: 17.5, y: 5.5 }; // Right side - more accessible
+        // Spawn key and lock on opposite sides (in open floor areas)
+        keyPosition = { x: 4.5, y: 1.5 }; // Left side, open floor
+        lockPosition = { x: 17.5, y: 5.5 }; // Right side, open floor
         keyVisible = true;
         lockVisible = true;
         keyCollected = false;
 
-        // Show brief message
+        // Show brief message and pause game
         levelPopupText = '✓ Correct!\nFind the key and unlock!';
         showLevelPopup = true;
         levelPopupTimer = 120; // Show for 2 seconds
+        gamePaused = true; // Pause game during popup
       } else {
         score -= 50;
         lives--;
@@ -490,6 +492,7 @@ function checkAnswerCollision() {
           levelPopupText = 'Game Over!\nFinal Score: ' + score + '\nRefreshing...';
           showLevelPopup = true;
           levelPopupTimer = 180;
+          gamePaused = true; // Pause during game over
 
           setTimeout(() => {
             lives = 3;
@@ -574,6 +577,7 @@ function checkLockCollision() {
 
     showLevelPopup = true;
     levelPopupTimer = 180;
+    gamePaused = true; // Pause during level transition
 
     // Load next level
     setTimeout(() => {
